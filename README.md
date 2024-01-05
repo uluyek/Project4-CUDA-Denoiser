@@ -29,6 +29,7 @@ I implemented the A-trous wavelet denoising filter from the "Edge-Avoiding A-Tro
 ## Performance Analysis:
 
 **Filter Size Analysis:** 
+
 As the filter size increases, noise reduction improves, leading to a smoother image. However, this comes at the cost of losing fine details and sharpness, especially noticeable with larger filter sizes like 50 and 75. The filter size of 25 appears to offer the best compromise, effectively reducing noise while still preserving most of the details.
 | Filter Size 10 | Filter Size 25 | 
 |---------------|------------------|
@@ -39,6 +40,8 @@ As the filter size increases, noise reduction improves, leading to a smoother im
 | ![](https://github.com/uluyek/Project4-CUDA-Denoiser/blob/base-code/img/filter%20size%2050.jpg) | ![](https://github.com/uluyek/Project4-CUDA-Denoiser/blob/base-code/img/filter%20size%2075.jpg) |
 
 **Material Analysis:** 
+
+Denoising effectiveness varies significantly across different material types. Diffuse materials generally show a uniform noise pattern that can be smoothed out but might lead to color desaturation. Specular and mirror materials require careful denoising to maintain reflection clarity. Emissive materials, while smooth on their own, contribute to noise in their vicinity, requiring a balance in denoising to maintain the light's impact on the scene.Materials with stronger hues, like red and green, may require more nuanced denoising to prevent color shifts. In contrast, neutral materials like white need a denoising approach that preserves detail without introducing a grayish or washed-out appearance.
 | Diffuse White | Diffuse Red | Diffuse Green | 
 |---------------|------------------|------------------|
 | ![](https://github.com/uluyek/Project4-CUDA-Denoiser/blob/base-code/img/Diffuse%20white.jpg) | ![](https://github.com/uluyek/Project4-CUDA-Denoiser/blob/base-code/img/Diffuse%20red.jpg) | ![](https://github.com/uluyek/Project4-CUDA-Denoiser/blob/base-code/img/Diffuse%20Green.jpg) | 

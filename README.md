@@ -25,14 +25,17 @@ I implemented the A-trous wavelet denoising filter from the "Edge-Avoiding A-Tro
 ## Performance Analysis:
 
 **Filter Size Analysis:** 
-| Filter Size 10 | Filter Size 25 | Filter Size 50 | Filter Size 75 | Filter Size 100 |
-|---------------|------------------|------------------|------------------|------------------|
-| ![](https://github.com/uluyek/Project4-CUDA-Denoiser/blob/base-code/img/filter%20size%2010.jpg) | ![](https://github.com/uluyek/Project4-CUDA-Denoiser/blob/base-code/img/filter%20size%2025.jpg) | ![](https://github.com/uluyek/Project4-CUDA-Denoiser/blob/base-code/img/filter%20size%2050.jpg) | ![](https://github.com/uluyek/Project4-CUDA-Denoiser/blob/base-code/img/filter%20size%2075.jpg) | ![](https://github.com/uluyek/Project4-CUDA-Denoiser/blob/base-code/img/filter%20size%20100.jpg) |
+| Filter Size 10 | Filter Size 25 | Filter Size 50 | Filter Size 75 | 
+|---------------|------------------|------------------|------------------|
+| ![](https://github.com/uluyek/Project4-CUDA-Denoiser/blob/base-code/img/filter%20size%2010.jpg) | ![](https://github.com/uluyek/Project4-CUDA-Denoiser/blob/base-code/img/filter%20size%2025.jpg) | ![](https://github.com/uluyek/Project4-CUDA-Denoiser/blob/base-code/img/filter%20size%2050.jpg) | ![](https://github.com/uluyek/Project4-CUDA-Denoiser/blob/base-code/img/filter%20size%2075.jpg) |
 
 **Material Analysis:** 
-| Diffuse White | Diffuse Red | Diffuse Green | Specular White | Mirror | Emissive |
-|---------------|------------------|------------------|------------------|------------------|------------------|
-| ![](https://github.com/uluyek/Project4-CUDA-Denoiser/blob/base-code/img/Diffuse%20white.jpg) | ![](https://github.com/uluyek/Project4-CUDA-Denoiser/blob/base-code/img/Diffuse%20red.jpg) | ![](https://github.com/uluyek/Project4-CUDA-Denoiser/blob/base-code/img/Diffuse%20Green.jpg) | ![](https://github.com/uluyek/Project4-CUDA-Denoiser/blob/base-code/img/Specular%20white.jpg) | ![](https://github.com/uluyek/Project4-CUDA-Denoiser/blob/base-code/img/mirror.jpg) | ![](https://github.com/uluyek/Project4-CUDA-Denoiser/blob/base-code/img/emissive%20.jpg) |
+| Diffuse White | Diffuse Red | Diffuse Green | 
+|---------------|------------------|------------------|
+| ![](https://github.com/uluyek/Project4-CUDA-Denoiser/blob/base-code/img/Diffuse%20white.jpg) | ![](https://github.com/uluyek/Project4-CUDA-Denoiser/blob/base-code/img/Diffuse%20red.jpg) | ![](https://github.com/uluyek/Project4-CUDA-Denoiser/blob/base-code/img/Diffuse%20Green.jpg) | 
+| Specular White | Mirror | Emissive |
+|------------------|------------------|------------------|
+|![](https://github.com/uluyek/Project4-CUDA-Denoiser/blob/base-code/img/Specular%20white.jpg) | ![](https://github.com/uluyek/Project4-CUDA-Denoiser/blob/base-code/img/mirror.jpg) | ![](https://github.com/uluyek/Project4-CUDA-Denoiser/blob/base-code/img/emissive%20.jpg) |
 
 **Scene Analysis:** 
 | Cornell Undenoised | Cornell Denoised  | Cornell Ceiling Light Undenoised | Cornell Ceiling Light Denoised | 

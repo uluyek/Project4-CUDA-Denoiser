@@ -51,6 +51,8 @@ Denoising effectiveness varies significantly across different material types. Di
 | ![](https://github.com/uluyek/Project4-CUDA-Denoiser/blob/base-code/img/Specular%20white.jpg) | ![](https://github.com/uluyek/Project4-CUDA-Denoiser/blob/base-code/img/mirror.jpg) | ![](https://github.com/uluyek/Project4-CUDA-Denoiser/blob/base-code/img/emissive%20.jpg) |
 
 **Scene Analysis:** 
+
+The Cornell Ceiling Light scene, with its expansive light source, yields a more homogeneous distribution of light across the room. This uniform illumination simplifies the denoising process, as the noise patterns are more regular and predictable, allowing for smoother denoising with less potential for detail loss. In contrast, the traditional Cornell Box scene, illuminated by a smaller light source, presents a more challenging environment for denoising. The intricate interplay of light and shadow, combined with the subtleties of indirect lighting, results in a complex noise pattern. The denoising algorithm must then carefully differentiate between noise and essential details, especially in the nuanced gradients and shadows. Consequently, the denoised output may retain more noise or lose some fine details, depending on the algorithm's sophistication and the parameters used for denoising. Comparatively, the denoised image of the Cornell Ceiling Light scene tends to be more consistent and clean, showcasing the advantage of uniform lighting in facilitating noise reduction. 
 | Cornell Undenoised | Cornell Denoised  | 
 |---------------|------------------|
 | ![](https://github.com/uluyek/Project4-CUDA-Denoiser/blob/base-code/img/Cornell%20Undenoised.jpg) | ![](https://github.com/uluyek/Project4-CUDA-Denoiser/blob/base-code/img/Cornell%20denoised.jpg) |

@@ -3,11 +3,37 @@ CUDA Denoiser For CUDA Path Tracer
 
 **University of Pennsylvania, CIS 565: GPU Programming and Architecture, Project 4**
 
-* (TODO) YOUR NAME HERE
-* Tested on: (TODO) Windows 22, i7-2222 @ 2.22GHz 22GB, GTX 222 222MB (Moore 2222 Lab)
 
-### (TODO: Your README)
+* Keyu Lu
+* Tested on: Windows 10, Dell Oman, NVIDIA GeForce RTX 2060
 
-*DO NOT* leave the README to the last minute! It is a crucial part of the
-project, and we will not be able to grade you without a good README.
+## Feature Implemented:
+I implemented the A-trous wavelet denoising filter from the "Edge-Avoiding A-Trous Wavelet Transform for fast Global Illumination Filtering" (https://jo.dreggn.org/home/2010_atrous.pdf) paper by Dammertz, Sewtz, Hanika. 
+
+## Denoising Results: 
+
+**Cornell Ceiling Light Scene:** 
+| Undenoised Scene | Denoised Scene | GBuffer |
+|---------------|------------------|------------------|
+| ![](https://github.com/uluyek/Project3-CUDA-Path-Tracer/blob/main/img/BRDF%20Diffuse%20Demo.jpg) | ![](https://github.com/uluyek/Project3-CUDA-Path-Tracer/blob/main/img/Perfectly%20specular-reflective%20Demo.jpg) | ![](https://github.com/uluyek/Project3-CUDA-Path-Tracer/blob/main/img/Perfectly%20specular-reflective%20Demo.jpg) |
+
+**Custom Scene:** 
+| Undenoised Scene | Denoised Scene (Iteration 10) |  Denoised Scene (Iteration 100) | GBuffer |
+|---------------|------------------|------------------|------------------|
+| ![](https://github.com/uluyek/Project3-CUDA-Path-Tracer/blob/main/img/BRDF%20Diffuse%20Demo.jpg) | ![](https://github.com/uluyek/Project3-CUDA-Path-Tracer/blob/main/img/Perfectly%20specular-reflective%20Demo.jpg) | ![](https://github.com/uluyek/Project3-CUDA-Path-Tracer/blob/main/img/Perfectly%20specular-reflective%20Demo.jpg) | ![](https://github.com/uluyek/Project3-CUDA-Path-Tracer/blob/main/img/Perfectly%20specular-reflective%20Demo.jpg) |
+
+## Performance Analysis:
+
+**Filter Size Analysis:** 
+| Filter Size 10 | Filter Size 25 | Filter Size 50 | Filter Size 75 |
+|---------------|------------------|------------------|------------------|
+| ![](https://github.com/uluyek/Project3-CUDA-Path-Tracer/blob/main/img/BRDF%20Diffuse%20Demo.jpg) | ![](https://github.com/uluyek/Project3-CUDA-Path-Tracer/blob/main/img/Perfectly%20specular-reflective%20Demo.jpg) | ![](https://github.com/uluyek/Project3-CUDA-Path-Tracer/blob/main/img/Perfectly%20specular-reflective%20Demo.jpg) | ![](https://github.com/uluyek/Project3-CUDA-Path-Tracer/blob/main/img/Perfectly%20specular-reflective%20Demo.jpg) |
+
+**Material Analysis:** 
+| Diffuse White | Diffuse Red | Diffuse Green | Specular White | Mirror | Emissive |
+|---------------|------------------|------------------|------------------|------------------|------------------|
+| ![](https://github.com/uluyek/Project3-CUDA-Path-Tracer/blob/main/img/BRDF%20Diffuse%20Demo.jpg) | ![](https://github.com/uluyek/Project3-CUDA-Path-Tracer/blob/main/img/Perfectly%20specular-reflective%20Demo.jpg) | ![](https://github.com/uluyek/Project3-CUDA-Path-Tracer/blob/main/img/Perfectly%20specular-reflective%20Demo.jpg) | ![](https://github.com/uluyek/Project3-CUDA-Path-Tracer/blob/main/img/Perfectly%20specular-reflective%20Demo.jpg) | ![](https://github.com/uluyek/Project3-CUDA-Path-Tracer/blob/main/img/Perfectly%20specular-reflective%20Demo.jpg) | ![](https://github.com/uluyek/Project3-CUDA-Path-Tracer/blob/main/img/Perfectly%20specular-reflective%20Demo.jpg) |
+
+
+
 

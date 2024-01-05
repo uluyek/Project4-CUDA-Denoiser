@@ -29,6 +29,7 @@ I implemented the A-trous wavelet denoising filter from the "Edge-Avoiding A-Tro
 ## Performance Analysis:
 
 **Filter Size Analysis:** 
+As the filter size increases, noise reduction improves, leading to a smoother image. However, this comes at the cost of losing fine details and sharpness, especially noticeable with larger filter sizes like 50 and 75. The filter size of 25 appears to offer the best compromise, effectively reducing noise while still preserving most of the details.
 | Filter Size 10 | Filter Size 25 | 
 |---------------|------------------|
 | ![](https://github.com/uluyek/Project4-CUDA-Denoiser/blob/base-code/img/filter%20size%2010.jpg) | ![](https://github.com/uluyek/Project4-CUDA-Denoiser/blob/base-code/img/filter%20size%2025.jpg) | 

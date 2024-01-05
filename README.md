@@ -26,7 +26,7 @@ I implemented the A-trous wavelet denoising filter from the "Edge-Avoiding A-Tro
 
 **Filter Size Analysis:** 
 | Filter Size 10 | Filter Size 25 | Filter Size 50 | Filter Size 75 | Filter Size 100 |
-|---------------|------------------|------------------|------------------|
+|---------------|------------------|------------------|------------------|------------------|
 | ![](https://github.com/uluyek/Project4-CUDA-Denoiser/blob/base-code/img/filter%20size%2010.jpg) | ![](https://github.com/uluyek/Project4-CUDA-Denoiser/blob/base-code/img/filter%20size%2025.jpg) | ![](https://github.com/uluyek/Project4-CUDA-Denoiser/blob/base-code/img/filter%20size%2050.jpg) | ![](https://github.com/uluyek/Project4-CUDA-Denoiser/blob/base-code/img/filter%20size%2075.jpg) | ![](https://github.com/uluyek/Project4-CUDA-Denoiser/blob/base-code/img/filter%20size%20100.jpg) |
 
 **Material Analysis:** 

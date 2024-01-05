@@ -32,7 +32,7 @@ I implemented the A-trous wavelet denoising filter from the "Edge-Avoiding A-Tro
 **Material Analysis:** 
 | Diffuse White | Diffuse Red | Diffuse Green | Specular White | Mirror | Emissive |
 |---------------|------------------|------------------|------------------|------------------|------------------|
-| ![](https://github.com/uluyek/Project3-CUDA-Path-Tracer/blob/main/img/BRDF%20Diffuse%20Demo.jpg) | ![](https://github.com/uluyek/Project3-CUDA-Path-Tracer/blob/main/img/Perfectly%20specular-reflective%20Demo.jpg) | ![](https://github.com/uluyek/Project3-CUDA-Path-Tracer/blob/main/img/Perfectly%20specular-reflective%20Demo.jpg) | ![](https://github.com/uluyek/Project3-CUDA-Path-Tracer/blob/main/img/Perfectly%20specular-reflective%20Demo.jpg) | ![](https://github.com/uluyek/Project3-CUDA-Path-Tracer/blob/main/img/Perfectly%20specular-reflective%20Demo.jpg) | ![](https://github.com/uluyek/Project3-CUDA-Path-Tracer/blob/main/img/Perfectly%20specular-reflective%20Demo.jpg) |
+| ![](https://github.com/uluyek/Project4-CUDA-Denoiser/blob/base-code/img/Diffuse%20white.jpg) | ![](https://github.com/uluyek/Project4-CUDA-Denoiser/blob/base-code/img/Diffuse%20red.jpg) | ![](https://github.com/uluyek/Project4-CUDA-Denoiser/blob/base-code/img/Diffuse%20Green.jpg) | ![](https://github.com/uluyek/Project4-CUDA-Denoiser/blob/base-code/img/Specular%20white.jpg) | ![](https://github.com/uluyek/Project4-CUDA-Denoiser/blob/base-code/img/mirror.jpg) | ![](https://github.com/uluyek/Project4-CUDA-Denoiser/blob/base-code/img/emissive%20.jpg) |
 
 **Scene Analysis:** 
 | Cornell Undenoised | Cornell Denoised  | Cornell Ceiling Light Undenoised | Cornell Ceiling Light Denoised | 

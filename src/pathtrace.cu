@@ -67,30 +67,106 @@ __global__ void sendImageToPBO(uchar4* pbo, glm::ivec2 resolution,
     }
 }
 
-__global__ void gbufferToPBO(uchar4* pbo, glm::ivec2 resolution, GBufferPixel* gBuffer) {
+__global__ void gbufferToPBO(uchar4* pbo, glm::ivec2 resolution, PixelsurFace* surface) {
     int x = (blockIdx.x * blockDim.x) + threadIdx.x;
     int y = (blockIdx.y * blockDim.y) + threadIdx.y;
 
     if (x < resolution.x && y < resolution.y) {
         int index = x + (y * resolution.x);
-        float timeToIntersect = gBuffer[index].t * 256.0;
-
+        glm::vec3 position = surface[index].position / 10.0f;
+        if (surface[index].t == -1)
+            position = glm::vec3(0.0f);
         pbo[index].w = 0;
-        pbo[index].x = timeToIntersect;
-        pbo[index].y = timeToIntersect;
-        pbo[index].z = timeToIntersect;
+        pbo[index].x = glm::abs(position.x) * 255.0f;
+        pbo[index].y = glm::abs(position.y) * 255.0f;
+        pbo[index].z = glm::abs(position.z) * 255.0f;
     }
 }
 
+
 static Scene * hst_scene = NULL;
 static glm::vec3 * dev_image = NULL;
+static glm::vec3* dev_denoise_image = NULL;
+static glm::vec3* dev_denoise_imageC = NULL;
 static Geom * dev_geoms = NULL;
 static Material * dev_materials = NULL;
 static PathSegment * dev_paths = NULL;
 static ShadeableIntersection * dev_intersections = NULL;
-static GBufferPixel* dev_gBuffer = NULL;
+static PixelsurFace* dev_surface = NULL;
+static float hostGauss[5] = { 1.0f / 16.0f,1.0f / 4.0f,3.0f / 8.0f,1.0f / 4.0f,1.0f / 16.0f };
+static float* kernel;
+
 // TODO: static variables for device memory, any extra info you need, etc
 // ...
+
+__global__ void normalizeImage(glm::vec3* image, float  iter_inv, int N) {
+    int x = (blockIdx.x * blockDim.x) + threadIdx.x;
+	
+    if (x < N) {
+        image[x] *= (float)iter_inv;
+    }
+}
+__global__ void Convolve2D(glm::ivec2 resolution, PixelsurFace* norm_position,
+	glm::vec3* org_image, glm::vec3* denoised_image, float* kernel,  int length, float inv_phi,
+	float inv_normal, float inv_p, int stepwidth,
+	float inv_square_width,int N) {
+	int x = (blockIdx.x * blockDim.x) + threadIdx.x;
+	int i = (x) % (resolution.x);
+	int j = (x) / (resolution.x);
+	if (x < N) {
+		
+		if (fabs(norm_position[x].t+1.0f)<EPSILON)
+		{
+			denoised_image[x] = org_image[x];
+			return;
+		}
+
+		glm::ivec2 current_uv = glm::ivec2(i, j);
+		glm::vec3 weight_sum = glm::vec3(0.0f);
+		glm::vec3 pixel = org_image[x];
+
+
+
+		PixelsurFace cur = norm_position[x];
+		float weight_kernel_sum = 0.0f;
+		for (int iy = 0; iy < 5; iy++)
+		{
+			for (int ix = 0; ix < 5; ix++)
+			{
+				int i = iy * 5 + ix;
+
+				glm::ivec2 offset = glm::ivec2(-2 + ix, -2 + iy);
+				glm::ivec2 uv =  current_uv + offset * stepwidth;
+				glm::ivec2 zero = glm::ivec2(0, 0);
+
+				uv = glm::clamp(uv, zero, resolution);
+
+
+				int neighbor = uv.x + (uv.y * resolution.x);
+				if (fabs(norm_position[neighbor].t +1.0f)<EPSILON)
+				{
+					continue;
+				}
+				glm::vec3 newpixel = org_image[neighbor];
+				glm::vec3 diff = pixel - newpixel;
+				float square_diff = dot(diff, diff);
+				float wc = fmin(expf(-(square_diff)*inv_phi), 1.0f);
+
+				diff = cur.normal - norm_position[neighbor].normal;
+				square_diff = fmax(dot(diff, diff) *inv_square_width, 0.0f);
+				float n_w = fmin(expf(-(square_diff)*inv_normal), 1.0f);
+
+				diff = cur.position - norm_position[neighbor].position;
+				square_diff = dot(diff, diff);
+				float p_w = fmin(expf(-(square_diff) * inv_p), 1.0f);
+				float wpq = wc * n_w * p_w*kernel[i];
+				weight_sum += newpixel * wpq;
+				weight_kernel_sum += wpq;
+			}
+		}
+		denoised_image[x] = weight_sum / weight_kernel_sum;
+	}
+}
 
 void pathtraceInit(Scene *scene) {
     hst_scene = scene;
@@ -99,6 +175,12 @@ void pathtraceInit(Scene *scene) {
 
     cudaMalloc(&dev_image, pixelcount * sizeof(glm::vec3));
     cudaMemset(dev_image, 0, pixelcount * sizeof(glm::vec3));
+
+    cudaMalloc(&dev_denoise_image, pixelcount * sizeof(glm::vec3));
+    cudaMemset(dev_denoise_image, 0, pixelcount * sizeof(glm::vec3));
+
+    cudaMalloc(&dev_denoise_imageC, pixelcount * sizeof(glm::vec3));
+    cudaMemset(dev_denoise_imageC, 0, pixelcount * sizeof(glm::vec3));
 
   	cudaMalloc(&dev_paths, pixelcount * sizeof(PathSegment));
 
@@ -111,9 +193,25 @@ void pathtraceInit(Scene *scene) {
   	cudaMalloc(&dev_intersections, pixelcount * sizeof(ShadeableIntersection));
   	cudaMemset(dev_intersections, 0, pixelcount * sizeof(ShadeableIntersection));
 
-    cudaMalloc(&dev_gBuffer, pixelcount * sizeof(GBufferPixel));
+    cudaMalloc(&dev_surface, pixelcount * sizeof(PixelsurFace));
 
+
+
+    cudaMalloc(&kernel, 25 * sizeof(float));
     // TODO: initialize any extra device memeory you need
+    
+	float cpu_kernel[25];
+	glm::ivec2 cpu_offset[25];
+	for (int y = 0; y < 5; y++)
+	{
+		for (int x = 0; x < 5; x++)
+		{
+			cpu_kernel[5 * y + x] = hostGauss[x] * hostGauss[y];
+		}
+	}
+
+	cudaMemcpy(kernel, cpu_kernel, 25 * sizeof(float), cudaMemcpyHostToDevice);
+
 
     checkCUDAError("pathtraceInit");
 }
@@ -124,9 +222,10 @@ void pathtraceFree() {
   	cudaFree(dev_geoms);
   	cudaFree(dev_materials);
   	cudaFree(dev_intersections);
-    cudaFree(dev_gBuffer);
+    cudaFree(dev_surface);
     // TODO: clean up any extra device memory you created
-
+    cudaFree(kernel);
+    //cudaFree(kernel1D);
     checkCUDAError("pathtraceFree");
 }
 
@@ -273,15 +372,17 @@ __global__ void shadeSimpleMaterials (
   }
 }
 
-__global__ void generateGBuffer (
+__global__ void CreateSurfaceBuffer (
   int num_paths,
   ShadeableIntersection* shadeableIntersections,
 	PathSegment* pathSegments,
-  GBufferPixel* gBuffer) {
+	PixelsurFace* surface) {
   int idx = blockIdx.x * blockDim.x + threadIdx.x;
   if (idx < num_paths)
   {
-    gBuffer[idx].t = shadeableIntersections[idx].t;
+    surface[idx].t = shadeableIntersections[idx].t;
+    surface[idx].normal = shadeableIntersections[idx].surfaceNormal;
+    surface[idx].position = getPointOnRay(pathSegments[idx].ray, surface[idx].t);
   }
 }
 
@@ -357,7 +458,7 @@ void pathtrace(int frame, int iter) {
 	// Shoot ray into scene, bounce between objects, push shading chunks
 
   // Empty gbuffer
-  cudaMemset(dev_gBuffer, 0, pixelcount * sizeof(GBufferPixel));
+  cudaMemset(dev_surface, 0, pixelcount * sizeof(PixelsurFace));
 
 	// clean shading chunks
 	cudaMemset(dev_intersections, 0, pixelcount * sizeof(ShadeableIntersection));
@@ -379,7 +480,7 @@ void pathtrace(int frame, int iter) {
 	cudaDeviceSynchronize();
 
   if (depth == 0) {
-    generateGBuffer<<<numblocksPathSegmentTracing, blockSize1d>>>(num_paths, dev_intersections, dev_paths, dev_gBuffer);
+    CreateSurfaceBuffer<<<numblocksPathSegmentTracing, blockSize1d>>>(num_paths, dev_intersections, dev_paths, dev_surface);
   }
 
 	depth++;
@@ -418,7 +519,7 @@ void showGBuffer(uchar4* pbo) {
             (cam.resolution.y + blockSize2d.y - 1) / blockSize2d.y);
 
     // CHECKITOUT: process the gbuffer results and send them to OpenGL buffer for visualization
-    gbufferToPBO<<<blocksPerGrid2d, blockSize2d>>>(pbo, cam.resolution, dev_gBuffer);
+    gbufferToPBO<<<blocksPerGrid2d, blockSize2d>>>(pbo, cam.resolution, dev_surface);
 }
 
 void showImage(uchar4* pbo, int iter) {
@@ -430,4 +531,47 @@ const Camera &cam = hst_scene->state.camera;
 
     // Send results to OpenGL buffer for rendering
     sendImageToPBO<<<blocksPerGrid2d, blockSize2d>>>(pbo, cam.resolution, iter, dev_image);
+}
+
+void showDenoisingImage(uchar4* pbo, int filterSize, float ui_colorWeight, float ui_normalWeight, float ui_positionWeight, int iter) {
+    const Camera& cam = hst_scene->state.camera;
+
+
+	const dim3 blockSize2d(8, 8);
+	const dim3 blocksPerGrid2d(
+		(cam.resolution.x + blockSize2d.x - 1) / blockSize2d.x,
+		(cam.resolution.y + blockSize2d.y - 1) / blockSize2d.y);
+
+	const int npixels = cam.resolution.x * cam.resolution.y;
+	const int blocksize = 256;
+	const int Nblocks = (npixels + blocksize - 1) / blocksize;
+    int loops = ceil(log2(((float)filterSize) / 4.0f));
+	float inv_iter = 1.0f / (float)iter;
+
+
+    cudaMemcpy(dev_denoise_image, dev_image, npixels * sizeof(glm::vec3), cudaMemcpyDeviceToDevice);
+    int steps = 1;
+	normalizeImage << <Nblocks, blocksize >> > (dev_denoise_image, inv_iter, npixels);
+	float inv_square_step;
+	float inv_colorweight;
+	float inv_normal;
+	float inv_p;
+    for (int i = 0; i < loops; i++) {
+		inv_colorweight = 1.0f / ui_colorWeight;
+		inv_normal = 1.0f / ui_normalWeight;
+		inv_square_step = 1.0f / (float)(steps*steps);
+		inv_p = 1.0f / (float)ui_positionWeight;
+		Convolve2D << <Nblocks, blocksize >> > (cam.resolution, dev_surface,
+			dev_denoise_image, dev_denoise_imageC, kernel, 5, inv_colorweight, inv_normal, inv_p, steps, inv_square_step,npixels);
+		steps = (steps <<1);
+        
+        ui_colorWeight = ui_colorWeight / 2;
+
+		// swap buffer
+        glm::vec3* temp = dev_denoise_image;
+        dev_denoise_image = dev_denoise_imageC;
+        dev_denoise_imageC = temp;
+    }
+
+    sendImageToPBO << <blocksPerGrid2d, blockSize2d >> > (pbo, cam.resolution, 1, dev_denoise_image);
 }

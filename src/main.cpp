@@ -106,7 +106,12 @@ void saveImage() {
         for (int y = 0; y < height; y++) {
             int index = x + (y * width);
             glm::vec3 pix = renderState->image[index];
-            img.setPixel(width - 1 - x, y, glm::vec3(pix) / samples);
+            if (ui_denoise) {
+                img.setPixel(width - 1 - x, y, glm::vec3(pix));
+            }
+            else {
+                img.setPixel(width - 1 - x, y, glm::vec3(pix) / samples);
+            }
         }
     }
 
@@ -166,9 +171,13 @@ void runCuda() {
     }
 
     if (ui_showGbuffer) {
-      showGBuffer(pbo_dptr);
-    } else {
-      showImage(pbo_dptr, iteration);
+        showGBuffer(pbo_dptr);
+    }
+    else if (ui_denoise) {
+		showDenoisingImage(pbo_dptr, ui_filterSize, ui_colorWeight, ui_normalWeight, ui_positionWeight, iteration);
+    }
+    else {
+        showImage(pbo_dptr, iteration);
     }
 
     // unmap buffer object
